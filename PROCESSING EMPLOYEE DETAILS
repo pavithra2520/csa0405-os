@@ -1,26 +1,76 @@
 #include <stdio.h>
-struct clientData
-{                              
-unsigned int acctNum;
-char lastName[ 15 ];     
-char firstName[ 10 ];   
-double balance;       
-};                
-int main( void )
-{ 
-unsigned int i;       
-struct clientData blankClient = { 0, "", "", 0.0 }; 
-FILE *cfPtr;
-if ( ( cfPtr = fopen( "credit.dat", "wb" ) ) == NULL )
-{
-puts( "File could not be opened." );
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "employee_data.dat"
+#define MAX_EMPLOYEES 100
+
+typedef struct {
+    int emp_id;
+    char emp_name[50];
+    float emp_salary;
+} Employee;
+
+void addEmployee(FILE *file) { 
+    Employee newEmployee;
+    
+    printf("Enter employee ID: ");
+    scanf("%d", &newEmployee.emp_id);
+    printf("Enter employee name: ");
+    scanf("%s", newEmployee.emp_name);
+    printf("Enter employee salary: ");
+    scanf("%f", &newEmployee.emp_salary);
+    
+    fseek(file, (newEmployee.emp_id - 1) * sizeof(Employee), SEEK_SET);
+    fwrite(&newEmployee, sizeof(Employee), 1, file);
 }
-else
-{                              
-for ( i = 1; i <= 100; ++i )
-{                                   
-fwrite( &blankClient, sizeof( struct clientData ), 1, cfPtr );
-}                                                
-fclose ( cfPtr );
+
+void displayEmployee(FILE *file, int emp_id) {
+    Employee displayEmp;
+    fseek(file, (emp_id - 1) * sizeof(Employee), SEEK_SET);
+    fread(&displayEmp, sizeof(Employee), 1, file);
+    
+    printf("Employee ID: %d\n", displayEmp.emp_id);
+    printf("Employee Name: %s\n", displayEmp.emp_name);
+    printf("Employee Salary: %.2f\n", displayEmp.emp_salary);
 }
+
+int main() {
+    FILE *file = fopen(FILENAME, "rb+");
+    if (file == NULL) {
+        file = fopen(FILENAME, "wb+");
+        if (file == NULL) {
+            printf("Error opening file!\n");
+            return 1;
+        }
+    }
+    
+    int choice;
+    do {
+        printf("\n1. Add Employee\n");
+        printf("2. Display Employee Details\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch (choice) {
+            case 1:
+                addEmployee(file);
+                break;
+            case 2:
+                printf("Enter employee ID to display: ");
+                int emp_id;
+                scanf("%d", &emp_id);
+                displayEmployee(file, emp_id);
+                break;
+            case 3:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 3);
+    
+    fclose(file);
+    return 0;
 }
