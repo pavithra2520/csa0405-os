@@ -1,51 +1,32 @@
-#include<stdio.h>
-
-void findWaitingTime(int processes[], int n, int bt[], int wt[]) {
-    wt[0] = 0;
-    for (int i = 1; i < n; i++)
-        wt[i] = bt[i - 1] + wt[i - 1];
-}
-
-void findTurnAroundTime(int processes[], int n, int bt[], int wt[], int tat[]) {
-    for (int i = 0; i < n; i++)
-        tat[i] = bt[i] + wt[i];
-}
-
-void findAvgTime(int processes[], int n, int bt[]) {
-    int wt[n], tat[n];
-    findWaitingTime(processes, n, bt, wt);
-    findTurnAroundTime(processes, n, bt, wt, tat);
-    
-    int total_wt = 0, total_tat = 0;
-    printf("\nProcess  Burst Time  Waiting Time  Turnaround Time");
-    for (int i = 0; i < n; i++) {
-        total_wt += wt[i];
-        total_tat += tat[i];
-        printf("\nP%d\t\t%d\t\t%d\t\t%d", i + 1, bt[i], wt[i], tat[i]);
-    }
-
-    printf("\n\nAverage waiting time: %.2f", (float)total_wt / n);
-    printf("\nAverage turnaround time: %.2f", (float)total_tat / n);
-}
+#include <stdio.h> #include <stdlib.h>
 
 int main() {
-    int n;
-    printf("Enter the number of processes: ");
-    scanf("%d", &n);
+int n, head, seek_time = 0;
 
-    int processes[n];
-    int burst_time[n];
 
-    printf("Enter burst time for each process:\n");
-    for (int i = 0; i < n; i++) {
-        printf("Burst time for process %d: ", i + 1);
-        scanf("%d", &burst_time[i]);
-        processes[i] = i + 1;
-    }
+printf("Enter the number of disk requests: "); scanf("%d", &n);
 
-    printf("\n");
+int request_queue[n];
 
-    findAvgTime(processes, n, burst_time);
 
-    return 0;
+printf("Enter the disk request queue:\n"); for (int i = 0; i < n; i++) {
+scanf("%d", &request_queue[i]);
+}
+
+
+printf("Enter the initial position of the disk head: "); scanf("%d", &head);
+
+// FCFS Scheduling
+printf("\nFCFS Disk Scheduling:\n");
+
+printf("Head Movement Sequence: %d", head); for (int i = 0; i < n; i++) {
+seek_time += abs(head - request_queue[i]); head = request_queue[i];
+printf(" -> %d", head);
+}
+
+
+printf("\nTotal Seek Time: %d\n", seek_time); printf("Average Seek Time: %.2f\n", (float) seek_time / n);
+
+
+return 0;
 }
