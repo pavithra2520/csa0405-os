@@ -1,0 +1,49 @@
+#include<stdio.h>
+
+#define FRAME_SIZE 3
+
+int isPagePresent(int page, int frames[], int frameCount) {
+    for (int i = 0; i < frameCount; i++) {
+        if (frames[i] == page) {
+            return 1; // Page found in frame
+        }
+    }
+    return 0; // Page not found in frame
+}
+
+int getPageToReplace(int pages[], int pageIndices[], int index) {
+    return pages[pageIndices[index]];
+}
+
+void fifoPageReplacement(int pages[], int pageCount) {
+    int frames[FRAME_SIZE] = {-1, -1, -1}; // Initialize frames with -1
+    int pageIndices[FRAME_SIZE] = {0, 1, 2}; // Keep track of page indices in frames
+    int index = 0; // Index to iterate over pages
+    int pageFaults = 0; // Counter for page faults
+
+    printf("\nPage\tFrames\n");
+    for (int i = 0; i < pageCount; i++) {
+        printf("%d\t", pages[i]);
+        if (!isPagePresent(pages[i], frames, FRAME_SIZE)) {
+            int pageToReplace = getPageToReplace(pages, pageIndices, index);
+            frames[pageToReplace] = pages[i];
+            pageIndices[index] = (pageIndices[index] + 1) % FRAME_SIZE;
+            index = (index + 1) % pageCount;
+            pageFaults++;
+        }
+        for (int j = 0; j < FRAME_SIZE; j++) {
+            printf("%d ", frames[j]);
+        }
+        printf("\n");
+    }
+    printf("\nTotal Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    int pages[] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
+    int pageCount = sizeof(pages) / sizeof(pages[0]);
+
+    fifoPageReplacement(pages, pageCount);
+
+    return 0;
+}
